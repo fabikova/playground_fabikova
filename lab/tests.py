@@ -18,25 +18,28 @@ def test_send_ugly():
 
 # ------------------8<------------------------------
 
-
+# pripravi testovaciu spravu a ocakávanu odpoved
+# vytvori sa len raz pre celu testovaciu session (vsetky testy)
 @pytest.fixture(scope="session")
 def data_message():
     message = "Test Message"
     expected = f"Server: {message}"
     return message, expected
 
+# pre kazdy test novy port?? ze nebudu dva rovnake porty v dvoch portoch - kolizia
 @pytest.fixture(scope="function")
 def data_port():
     return random.randint(1,100)
 
+# vytvori a spusti server - system under test
 @pytest.fixture()
 def sut_server(data_port):
-    server = Server(data_port)
-    server.start()
-    yield server
-    server.stop()
+    server = Server(data_port) # vytv server s nahodnym portom
+    server.start() # spusti server
+    yield server # odovzda server testu
+    server.stop() # po teste sa server zastavi, uvolni sa port
 
-
+# vytvori klienta pripojeneho na rovn port ako server
 @pytest.fixture()
 def sut_client(data_port):
     client = Client(data_port)
